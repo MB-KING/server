@@ -2,7 +2,6 @@ const { json } = require("express");
 const express = require("express");
 const app = express();
 var cors = require("cors");
-const port = 3000;
 const mysql = require("mysql");
 require("dotenv").config();
 
@@ -64,6 +63,6 @@ app.get("/findCourseBooklets", (req, res) => {
   });
 });
 
-app.listen(port, () => {
-  console.log(`Example app listening on port ${port}`);
+app.listen(process.env.APP_PORT, () => {
+  console.log(`Example app listening on port ${process.env.APP_PORT}`);
 });
