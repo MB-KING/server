@@ -22,7 +22,7 @@ connection.connect(function (err) {
   console.log("connected as id " + connection.threadId);
 });
 
-app.get("/findCourses", (req, res) => {
+app.get("/api/findCourses", (req, res) => {
   const courseId = req.query.courseName;
   const sql = `SELECT * FROM courses WHERE Course_Name like "%${courseId}%"`;
   connection.query(sql, (error, results, fields) => {
@@ -35,7 +35,7 @@ app.get("/findCourses", (req, res) => {
   });
 });
 
-app.get("/findCourseTeachers", (req, res) => {
+app.get("/api/findCourseTeachers", (req, res) => {
   const courseId = req.query.courseId;
   const sql = `SELECT course_teachers.Course_Id, course_teachers.Teacher_Id, teachers.Teacher_Name FROM course_teachers LEFT JOIN teachers ON course_teachers.Teacher_Id = teachers.Teacher_Id WHERE Course_Id = "${courseId}"`;
   connection.query(sql, (error, results, fields) => {
@@ -48,7 +48,7 @@ app.get("/findCourseTeachers", (req, res) => {
   });
 });
 
-app.get("/findCourseBooklets", (req, res) => {
+app.get("/api/findCourseBooklets", (req, res) => {
   const courseId = req.query.courseId;
   const teacherId = req.query.teacherId;
 
