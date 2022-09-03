@@ -23,7 +23,7 @@ connection.connect(function (err) {
 });
 
 app.get("/api/findCourses", (req, res) => {
-  const courseId = persianJs(req.query.courseNamث).arabicChar().toString();
+  const courseId = persianJs(req.query.courseName).arabicChar().toString();
   const sql = `SELECT * FROM courses WHERE Course_Name like "%${courseId}%"`;
   connection.query(sql, (error, results, fields) => {
     if (error) {
