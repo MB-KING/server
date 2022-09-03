@@ -4,7 +4,7 @@ const app = express();
 var cors = require("cors");
 const mysql = require("mysql");
 require("dotenv").config();
-
+const persianJs = require("persianjs");
 app.use(cors());
 
 const connection = mysql.createConnection({
@@ -23,7 +23,7 @@ connection.connect(function (err) {
 });
 
 app.get("/api/findCourses", (req, res) => {
-  const courseId = req.query.courseName;
+  const courseId = persianJs(req.query.courseNamث).arabicChar().toString();
   const sql = `SELECT * FROM courses WHERE Course_Name like "%${courseId}%"`;
   connection.query(sql, (error, results, fields) => {
     if (error) {
