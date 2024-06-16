@@ -1,17 +1,22 @@
-const { json } = require("express");
 const express = require("express");
 const app = express();
-var cors = require("cors");
+const cors = require("cors");
 const mysql = require("mysql");
+const helmet = require("helmet");
 require("dotenv").config();
 const persianJs = require("persianjs");
+
 app.use(cors());
+app.use(helmet());
 
 const connection = mysql.createConnection({
   host: process.env.DB_HOST,
   user: process.env.DB_USER,
   password: process.env.DB_PASS,
   database: process.env.DB_NAME,
+  ssl: {
+    rejectUnauthorized: true, 
+  }
 });
 
 connection.connect(function (err) {
@@ -24,45 +29,47 @@ connection.connect(function (err) {
 
 app.get("/api/findCourses", (req, res) => {
   const courseId = persianJs(req.query.courseName).arabicChar().toString();
-  const sql = `SELECT * FROM courses WHERE Course_Name like "%${courseId}%"`;
-  connection.query(sql, (error, results, fields) => {
+  const sql = `SELECT * FROM courses WHERE Course_Name LIKE ?`;
+  const queryValue = `%${courseId}%`;
+
+  connection.query(sql, [queryValue], (error, results, fields) => {
     if (error) {
-      res.status(500).json({ message: error });
+      return res.status(500).json({ message: error.message });
     }
-    res
-      .status(200)
-      .send({ message: "find courses successfully !", courses: { results } });
+    res.status(200).send({ message: "find courses successfully!", courses: results });
   });
 });
 
 app.get("/api/findCourseTeachers", (req, res) => {
   const courseId = req.query.courseId;
-  const sql = `SELECT course_teachers.Course_Id, course_teachers.Teacher_Id, teachers.Teacher_Name FROM course_teachers LEFT JOIN teachers ON course_teachers.Teacher_Id = teachers.Teacher_Id WHERE Course_Id = "${courseId}"`;
-  connection.query(sql, (error, results, fields) => {
+  const sql = `
+    SELECT course_teachers.Course_Id, course_teachers.Teacher_Id, teachers.Teacher_Name
+    FROM course_teachers
+    LEFT JOIN teachers ON course_teachers.Teacher_Id = teachers.Teacher_Id
+    WHERE Course_Id = ?
+  `;
+
+  connection.query(sql, [courseId], (error, results, fields) => {
     if (error) {
-      res.status(500).json({ message: error });
+      return res.status(500).json({ message: error.message });
     }
-    res
-      .status(200)
-      .send({ message: "find teachers successfully !", teachers: { results } });
+    res.status(200).send({ message: "find teachers successfully!", teachers: results });
   });
 });
 
 app.get("/api/findCourseBooklets", (req, res) => {
-  const courseId = req.query.courseId;
-  const teacherId = req.query.teacherId;
+  const { courseId, teacherId } = req.query;
+  const sql = `SELECT * FROM booklet WHERE Course_Id = ? AND Teacher_Id = ?`;
 
-  const sql = `SELECT * from booklet WHERE Course_Id = ${courseId} AND Teacher_Id =${teacherId}`;
-  connection.query(sql, (error, results, fields) => {
+  connection.query(sql, [courseId, teacherId], (error, results, fields) => {
     if (error) {
-      res.status(500).json({ message: error });
+      return res.status(500).json({ message: error.message });
     }
-    res
-      .status(200)
-      .send({ message: "find booklet successfully !", booklets: { results } });
+    res.status(200).send({ message: "find booklet successfully!", booklets: results });
   });
 });
 
-app.listen(process.env.APP_PORT, () => {
-  console.log(`Example app listening on port ${process.env.APP_PORT}`);
+const port = process.env.APP_PORT || 3000;
+app.listen(port, () => {
+  console.log(`Example app listening on port ${port}`);
 });
