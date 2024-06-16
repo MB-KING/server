@@ -12,10 +12,6 @@ This is a simple API for managing courses, teachers, and booklets using Node.js,
 ## Installation
 
 1. Clone the repository:
-   ```bash
-   git clone https://github.com/your-username/course-management-api.git
-   cd course-management-api
-   ```
 
 2. Install the dependencies:
    ```bash
